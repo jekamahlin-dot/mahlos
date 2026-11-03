@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мой медиапортал</title>
+
+<style>
+• {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+}
+
+body {
+background: #0b1020;
+color: #fff;
+font-family: Arial, sans-serif;
+}
+
+header {
+padding: 35px 20px;
+text-align: center;
+background: linear-gradient(135deg,#171d39,#263b69);
+}
+
+header h1 {
+font-size: 34px;
+margin-bottom: 10px;
+}
+
+header p {
+color: #b7c5e8;
+}
+
+.container {
+max-width: 1100px;
+margin: auto;
+padding: 25px 18px;
+}
+
+.editor {
+background: #171e32;
+padding: 25px;
+border-radius: 16px;
+margin-bottom: 30px;
+}
+
+.editor h2 {
+margin-bottom: 18px;
+}
+
+input, textarea {
+width: 100%;
+padding: 14px;
+margin: 8px 0;
+border: 1px solid #35415e;
+border-radius: 9px;
+background: #0d1427;
+color: white;
+font-size: 15px;
+}
+
+textarea {
+min-height: 120px;
+resize: vertical;
+}
+
+button {
+border: none;
+padding: 12px 20px;
+border-radius: 9px;
+background: #4778ff;
+color: white;
+cursor: pointer;
+font-size: 15px;
+margin: 6px 4px 0 0;
+}
+
+button:hover {
+background: #315de0;
+}
+
+.delete {
+background: #d94355;
+}
+
+.edit {
+background: #59677f;
+}
+
+.posts {
+display: grid;
+grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+gap: 22px;
+}
+
+.post {
+background: #171e32;
+border-radius: 15px;
+overflow: hidden;
+border: 1px solid #28334d;
+}
+
+.post img {
+width: 100%;
+max-height: 350px;
+object-fit: cover;
+display: block;
+}
+
+.post-content {
+padding: 20px;
+}
+
+.post h3 {
+font-size: 22px;
+margin-bottom: 12px;
+}
+
+.post p {
+color: #c4cce0;
+line-height: 1.6;
+white-space: pre-wrap;
+overflow-wrap: anywhere;
+}
+
+.post iframe {
+width: 100%;
+aspect-ratio: 16/9;
+border: none;
+}
+
+.post a {
+display: inline-block;
+color: #83a9ff;
+margin-top: 15px;
+}
+
+.actions {
+margin-top: 15px;
+}
+
+.empty {
+text-align: center;
+color: #8996b1;
+padding: 35px;
+}
+
+footer {
+text-align: center;
+padding: 30px;
+color: #8491ad;
+}
+
+@media(max-width:600px) {
+header h1 {font-size:26px;}
+.editor {padding:17px;}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>МОЙ МЕДИАПОРТАЛ</h1>
+<p>Фото, публикации, видео и интересные материалы</p>
+</header>
+
+<main class="container">
+
+<section class="editor">
+<h2>➕ Добавить публикацию</h2>
+
+<input id="title" placeholder="Заголовок публикации">
+
+<textarea id="description"
+placeholder="Введите текст публикации..."></textarea>
+
+<label>Выбрать фотографию:</label>
+<input type="file" id="image" accept="image/*">
+
+<input id="youtube"
+placeholder="Ссылка на видео YouTube">
+
+<input id="link"
+placeholder="Дополнительная ссылка">
+
+<button onclick="addPost()">Опубликовать</button>
+</section>
+
+<h2 style="margin-bottom:20px">Последние публикации</h2>
+
+<section class="posts" id="posts"></section>
+
+</main>
+
+<footer>
+© 2026 Мой медиапортал
+</footer>
+
+<script>
+let posts = JSON.parse(
+localStorage.getItem("myPosts") || "[]"
+);
+
+let editing = null;
+
+function save() {
+localStorage.setItem(
+"myPosts",
+JSON.stringify(posts)
+);
+}
+
+function youtubeId(url) {
+try {
+const u = new URL(url);
+if (u.hostname === "youtu.be") {
+return u.pathname.slice(1);
+}
+if (["youtube.com","www.youtube.com",
+"m.youtube.com"].includes(u.hostname)) {
+if (u.pathname === "/watch") {
+return u.searchParams.get("v");
+}
+const match = u.pathname.match(
+/^/(embed|shorts)/([^/?]+)/
+);
+return match ? match[2] : null;
+}
+} catch(e) {}
+return null;
+}
+
+function addPost() {
+const title = document.getElementById("title").value;
+const description =
+document.getElementById("description").value;
+const youtube =
+document.getElementById("youtube").value;
+const link = document.getElementById("link").value;
+const file = document.getElementById("image").files[0];
+
+if (!title.trim() && !description.trim() &&
+!youtube.trim() && !file && !link.trim()) {
+alert("Добавьте хотя бы один материал");
+return;
+}
+
+const finish = (imageData) => {
+const post = {
+title,
+description,
+youtube,
+link,
+image: imageData
+};
+
+if (editing !== null) {
+if (!file) post.image = posts[editing].image;
+posts[editing] = post;
+editing = null;
+} else {
+posts.unshift(post);
+}
+
+save();
+render();
+clearForm();
+};
+
+if (file) {
+if (!file.type.startsWith("image/")) {
+alert("Выберите изображение");
+return;
+}
+
+if (file.size > 3 * 1024 * 1024) {
+alert("Размер изображения должен быть до 3 МБ");
+return;
+}
+
+const reader = new FileReader();
+reader.onload = () => finish(reader.result);
+reader.readAsDataURL(file);
+} else {
+finish(null);
+}
+}
+
+function clearForm() {
+["title","description","youtube","link"].forEach(id => {
+document.getElementById(id).value = "";
+});
+document.getElementById("image").value = "";
+}
+
+function element(tag, text, parent) {
+const el = document.createElement(tag);
+el.textContent = text;
+parent.appendChild(el);
+return el;
+}
+
+function render() {
+const container = document.getElementById("posts");
+container.replaceChildren();
+
+if (!posts.length) {
+element("div","Пока публикаций нет. Добавьте первую!",container)
+.className = "empty";
+return;
+}
+
+posts.forEach((post,index) => {
+const card = document.createElement("article");
+card.className = "post";
+
+if (post.image) {
+const img = document.createElement("img");
+img.src = post.image;
+img.alt = post.title || "Изображение";
+card.appendChild(img);
+}
+
+const content = document.createElement("div");
+content.className = "post-content";
+card.appendChild(content);
+
+if (post.title) element("h3",post.title,content);
+if (post.description) element("p",post.description,content);
+
+const id = youtubeId(post.youtube || "");
+
+if (id && /^[a-zA-Z0-9_-]{11}$/.test(id)) {
+const frame = document.createElement("iframe");
+frame.src = "https://www.youtube-nocookie.com/embed/" + id;
+frame.title = "Видео YouTube";
+frame.allowFullscreen = true;
+frame.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+content.appendChild(frame);
+} else if (post.youtube) {
+element("p","Некорректная ссылка YouTube",content);
+}
+
+if (post.link) {
+try {
+const url = new URL(post.link);
+if (["http:","https:"].includes(url.protocol)) {
+const a = element("a","Открыть ссылку ↗",content);
+a.href = url.href;
+a.target = "_blank";
+a.rel = "noopener noreferrer";
+}
+} catch(e) {}
+}
+
+const actions = document.createElement("div");
+actions.className = "actions";
+content.appendChild(actions);
+
+const edit = element("button","Редактировать",actions);
+edit.className = "edit";
+edit.onclick = () => editPost(index);
+
+const del = element("button","Удалить",actions);
+del.className = "delete";
+del.onclick = () => deletePost(index);
+
+container.appendChild(card);
+});
+}
+
+function editPost(index) {
+const post = posts[index];
+document.getElementById("title").value = post.title;
+document.getElementById("description").value = post.description;
+document.getElementById("youtube").value = post.youtube;
+document.getElementById("link").value = post.link;
+editing = index;
+window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function deletePost(index) {
+if (confirm("Удалить эту публикацию?")) {
+posts.splice(index,1);
+save();
+render();
+}
+}
+
+render();
+</script>
+
+</body>
+</html>
