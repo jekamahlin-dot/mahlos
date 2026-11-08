@@ -225,7 +225,7 @@ if (u.pathname === "/watch") {
 return u.searchParams.get("v");
 }
 const match = u.pathname.match(
-/^/(embed|shorts)/([^/?]+)/
+/^\/(embed|shorts)\/([^/?]+)/
 );
 return match ? match[2] : null;
 }
