@@ -391,7 +391,14 @@ render();
 }
 
 render();
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </script>
+const SUPABASE_URL = "https://nlpdipoukgxvwlsorlrh.supabase.co";
 
+const SUPABASE_KEY = "sb_publishable_XpzN7iuIAtUyXePqlo6Zvg_whRYcipy";
+  const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 </body>
 </html>
