@@ -3,402 +3,391 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Мой медиапортал</title>
-
+<title>MAHLOS — медиапортал</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-• {
-box-sizing: border-box;
-margin: 0;
-padding: 0;
-}
-
-body {
-background: #0b1020;
-color: #fff;
-font-family: Arial, sans-serif;
-}
-
-header {
-padding: 35px 20px;
-text-align: center;
-background: linear-gradient(135deg,#171d39,#263b69);
-}
-
-header h1 {
-font-size: 34px;
-margin-bottom: 10px;
-}
-
-header p {
-color: #b7c5e8;
-}
-
-.container {
-max-width: 1100px;
-margin: auto;
-padding: 25px 18px;
-}
-
-.editor {
-background: #171e32;
-padding: 25px;
-border-radius: 16px;
-margin-bottom: 30px;
-}
-
-.editor h2 {
-margin-bottom: 18px;
-}
-
-input, textarea {
-width: 100%;
-padding: 14px;
-margin: 8px 0;
-border: 1px solid #35415e;
-border-radius: 9px;
-background: #0d1427;
-color: white;
-font-size: 15px;
-}
-
-textarea {
-min-height: 120px;
-resize: vertical;
-}
-
-button {
-border: none;
-padding: 12px 20px;
-border-radius: 9px;
-background: #4778ff;
-color: white;
-cursor: pointer;
-font-size: 15px;
-margin: 6px 4px 0 0;
-}
-
-button:hover {
-background: #315de0;
-}
-
-.delete {
-background: #d94355;
-}
-
-.edit {
-background: #59677f;
-}
-
-.posts {
-display: grid;
-grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
-gap: 22px;
-}
-
-.post {
-background: #171e32;
-border-radius: 15px;
-overflow: hidden;
-border: 1px solid #28334d;
-}
-
-.post img {
-width: 100%;
-max-height: 350px;
-object-fit: cover;
-display: block;
-}
-
-.post-content {
-padding: 20px;
-}
-
-.post h3 {
-font-size: 22px;
-margin-bottom: 12px;
-}
-
-.post p {
-color: #c4cce0;
-line-height: 1.6;
-white-space: pre-wrap;
-overflow-wrap: anywhere;
-}
-
-.post iframe {
-width: 100%;
-aspect-ratio: 16/9;
-border: none;
-}
-
-.post a {
-display: inline-block;
-color: #83a9ff;
-margin-top: 15px;
-}
-
-.actions {
-margin-top: 15px;
-}
-
-.empty {
-text-align: center;
-color: #8996b1;
-padding: 35px;
-}
-
-footer {
-text-align: center;
-padding: 30px;
-color: #8491ad;
-}
-
-@media(max-width:600px) {
-header h1 {font-size:26px;}
-.editor {padding:17px;}
-}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b1020;color:#fff;font-family:Arial,sans-serif}
+header{padding:35px 20px;text-align:center;background:linear-gradient(135deg,#171d39,#263b69)}
+header h1{font-size:34px;margin-bottom:10px}
+header p{color:#b7c5e8}
+.container{max-width:1100px;margin:auto;padding:25px 18px}
+.editor,.login{background:#171e32;padding:25px;border-radius:16px;margin-bottom:30px}
+.editor h2,.login h2{margin-bottom:18px}
+input,textarea{width:100%;padding:14px;margin:8px 0;border:1px solid #35415e;border-radius:9px;background:#0d1427;color:white;font-size:15px}
+textarea{min-height:120px;resize:vertical}
+button{border:none;padding:12px 20px;border-radius:9px;background:#4778ff;color:white;cursor:pointer;font-size:15px;margin:6px 4px 0 0}
+button:hover{background:#315de0}
+button:disabled{opacity:.55;cursor:wait}
+.delete{background:#d94355}.edit{background:#59677f}
+.posts{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px}
+.post{background:#171e32;border-radius:15px;overflow:hidden;border:1px solid #28334d}
+.post img{width:100%;max-height:350px;object-fit:cover;display:block}
+.post-content{padding:20px}.post h3{font-size:22px;margin-bottom:12px}
+.post p{color:#c4cce0;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+.post iframe{width:100%;aspect-ratio:16/9;border:none}
+.post a{display:inline-block;color:#83a9ff;margin-top:15px}
+.actions{margin-top:15px}.empty{text-align:center;color:#8996b1;padding:35px}
+footer{text-align:center;padding:30px;color:#8491ad}
+.status{padding:10px 0;color:#b7c5e8;white-space:pre-wrap}
+.hidden{display:none!important}
+@media(max-width:600px){header h1{font-size:26px}.editor,.login{padding:17px}}
 </style>
 </head>
-
 <body>
-
 <header>
-<h1>МОЙ МЕДИАПОРТАЛ</h1>
+<h1>MAHLOS</h1>
 <p>Фото, публикации, видео и интересные материалы</p>
 </header>
 
 <main class="container">
+<section class="login" id="loginBox">
+<h2>Вход администратора</h2>
+<input id="email" type="email" autocomplete="username" placeholder="Электронная почта администратора">
+<input id="password" type="password" autocomplete="current-password" placeholder="Пароль">
+<button id="loginButton" type="button">Войти</button>
+<p class="status" id="loginStatus">Публиковать и управлять материалами может только администратор.</p>
+</section>
 
-<section class="editor">
+<section class="editor hidden" id="editor">
 <h2>➕ Добавить публикацию</h2>
-
 <input id="title" placeholder="Заголовок публикации">
-
-<textarea id="description"
-placeholder="Введите текст публикации..."></textarea>
-
+<textarea id="description" placeholder="Введите текст публикации..."></textarea>
 <label>Выбрать фотографию:</label>
 <input type="file" id="image" accept="image/*">
-
-<input id="youtube"
-placeholder="Ссылка на видео YouTube">
-
-<input id="link"
-placeholder="Дополнительная ссылка">
-
-<button onclick="addPost()">Опубликовать</button>
+<input id="youtube" placeholder="Ссылка на видео YouTube">
+<input id="link" placeholder="Дополнительная ссылка">
+<button id="publishButton" type="button">Опубликовать</button>
+<button id="logoutButton" type="button" class="edit">Выйти</button>
+<p class="status" id="editorStatus"></p>
 </section>
 
 <h2 style="margin-bottom:20px">Последние публикации</h2>
-
 <section class="posts" id="posts"></section>
-
 </main>
-
-<footer>
-© 2026 Мой медиапортал
-</footer>
+<footer>© 2026 MAHLOS</footer>
 
 <script>
-let posts = JSON.parse(
-localStorage.getItem("myPosts") || "[]"
-);
+/*
+  ВСТАВЬ СЮДА Project URL и Publishable key из Supabase.
+  ADMIN_UID — UUID единственного администратора из Supabase → Authentication → Users.
+*/
+const SUPABASE_URL = "https://nlpdipoukgxvwlsorlrh.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_XpzN7iuIAtUyXePqlo6Zvg_whRYcipy";
+const ADMIN_UID = "03078c65-76dd-480d-8d51-14cd58a73d23";
+const BUCKET = "media";
 
-let editing = null;
+const configReady =
+  SUPABASE_URL.startsWith("https://") &&
+  !SUPABASE_URL.includes("ВСТАВЬТЕ") &&
+  !SUPABASE_ANON_KEY.includes("ВСТАВЬТЕ") &&
+  !ADMIN_UID.includes("ВСТАВЬТЕ");
 
-function save() {
-localStorage.setItem(
-"myPosts",
-JSON.stringify(posts)
-);
-}
+const db = configReady
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+let posts = [];
+let editingId = null;
+let currentUser = null;
+
+const $ = id => document.getElementById(id);
+const status = (id, message) => { $(id).textContent = message; };
 
 function youtubeId(url) {
-try {
-const u = new URL(url);
-if (u.hostname === "youtu.be") {
-return u.pathname.slice(1);
-}
-if (["youtube.com","www.youtube.com",
-"m.youtube.com"].includes(u.hostname)) {
-if (u.pathname === "/watch") {
-return u.searchParams.get("v");
-}
-const match = u.pathname.match(
-/^\/(embed|shorts)\/([^/?]+)/
-);
-return match ? match[2] : null;
-}
-} catch(e) {}
-return null;
+  try {
+    const u = new URL(url);
+    if (u.hostname === "youtu.be") return u.pathname.slice(1);
+    if (["youtube.com","www.youtube.com","m.youtube.com"].includes(u.hostname)) {
+      if (u.pathname === "/watch") return u.searchParams.get("v");
+      const match = u.pathname.match(/^\/(embed|shorts)\/([^/?]+)/);
+      return match ? match[2] : null;
+    }
+  } catch(e) {}
+  return null;
 }
 
-function addPost() {
-const title = document.getElementById("title").value;
-const description =
-document.getElementById("description").value;
-const youtube =
-document.getElementById("youtube").value;
-const link = document.getElementById("link").value;
-const file = document.getElementById("image").files[0];
-
-if (!title.trim() && !description.trim() &&
-!youtube.trim() && !file && !link.trim()) {
-alert("Добавьте хотя бы один материал");
-return;
+function isAdmin(user) {
+  return !!user && user.id === ADMIN_UID;
 }
 
-const finish = (imageData) => {
-const post = {
-title,
-description,
-youtube,
-link,
-image: imageData
-};
-
-if (editing !== null) {
-if (!file) post.image = posts[editing].image;
-posts[editing] = post;
-editing = null;
-} else {
-posts.unshift(post);
+function updateAdminView() {
+  const admin = isAdmin(currentUser);
+  $("editor").classList.toggle("hidden", !admin);
+  $("loginBox").classList.toggle("hidden", admin);
 }
 
-save();
-render();
-clearForm();
-};
+async function loadPosts() {
+  const { data, error } = await db
+    .from("posts")
+    .select("id,title,description,image_url,youtube_url,link_url,created_at")
+    .order("created_at", { ascending: false });
 
-if (file) {
-if (!file.type.startsWith("image/")) {
-alert("Выберите изображение");
-return;
-}
-
-if (file.size > 3 * 1024 * 1024) {
-alert("Размер изображения должен быть до 3 МБ");
-return;
-}
-
-const reader = new FileReader();
-reader.onload = () => finish(reader.result);
-reader.readAsDataURL(file);
-} else {
-finish(null);
-}
-}
-
-function clearForm() {
-["title","description","youtube","link"].forEach(id => {
-document.getElementById(id).value = "";
-});
-document.getElementById("image").value = "";
-}
-
-function element(tag, text, parent) {
-const el = document.createElement(tag);
-el.textContent = text;
-parent.appendChild(el);
-return el;
+  if (error) {
+    status("editorStatus", "Не удалось загрузить публикации: " + error.message);
+    return;
+  }
+  posts = data || [];
+  render();
 }
 
 function render() {
-const container = document.getElementById("posts");
-container.replaceChildren();
+  const container = $("posts");
+  container.replaceChildren();
 
-if (!posts.length) {
-element("div","Пока публикаций нет. Добавьте первую!",container)
-.className = "empty";
-return;
+  if (!posts.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = "Пока публикаций нет.";
+    container.appendChild(empty);
+    return;
+  }
+
+  posts.forEach(post => {
+    const card = document.createElement("article");
+    card.className = "post";
+
+    if (post.image_url) {
+      const img = document.createElement("img");
+      img.src = post.image_url;
+      img.alt = post.title || "Изображение";
+      img.loading = "lazy";
+      card.appendChild(img);
+    }
+
+    const content = document.createElement("div");
+    content.className = "post-content";
+    card.appendChild(content);
+
+    if (post.title) element("h3", post.title, content);
+    if (post.description) element("p", post.description, content);
+
+    const id = youtubeId(post.youtube_url || "");
+    if (id && /^[a-zA-Z0-9_-]{11}$/.test(id)) {
+      const frame = document.createElement("iframe");
+      frame.src = "https://www.youtube-nocookie.com/embed/" + id;
+      frame.title = "Видео YouTube";
+      frame.allowFullscreen = true;
+      frame.loading = "lazy";
+      frame.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+      content.appendChild(frame);
+    } else if (post.youtube_url) {
+      element("p", "Некорректная ссылка YouTube", content);
+    }
+
+    if (post.link_url) {
+      try {
+        const url = new URL(post.link_url);
+        if (["http:","https:"].includes(url.protocol)) {
+          const a = element("a", "Открыть ссылку ↗", content);
+          a.href = url.href;
+          a.target = "_blank";
+          a.rel = "noopener noreferrer";
+        }
+      } catch(e) {}
+    }
+
+    if (isAdmin(currentUser)) {
+      const actions = document.createElement("div");
+      actions.className = "actions";
+      content.appendChild(actions);
+
+      const edit = element("button", "Редактировать", actions);
+      edit.className = "edit";
+      edit.onclick = () => editPost(post.id);
+
+      const del = element("button", "Удалить", actions);
+      del.className = "delete";
+      del.onclick = () => deletePost(post.id);
+    }
+    container.appendChild(card);
+  });
 }
 
-posts.forEach((post,index) => {
-const card = document.createElement("article");
-card.className = "post";
-
-if (post.image) {
-const img = document.createElement("img");
-img.src = post.image;
-img.alt = post.title || "Изображение";
-card.appendChild(img);
+function element(tag, text, parent) {
+  const el = document.createElement(tag);
+  el.textContent = text;
+  parent.appendChild(el);
+  return el;
 }
 
-const content = document.createElement("div");
-content.className = "post-content";
-card.appendChild(content);
-
-if (post.title) element("h3",post.title,content);
-if (post.description) element("p",post.description,content);
-
-const id = youtubeId(post.youtube || "");
-
-if (id && /^[a-zA-Z0-9_-]{11}$/.test(id)) {
-const frame = document.createElement("iframe");
-frame.src = "https://www.youtube-nocookie.com/embed/" + id;
-frame.title = "Видео YouTube";
-frame.allowFullscreen = true;
-frame.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-content.appendChild(frame);
-} else if (post.youtube) {
-element("p","Некорректная ссылка YouTube",content);
+function clearForm() {
+  ["title","description","youtube","link"].forEach(id => $(id).value = "");
+  $("image").value = "";
+  editingId = null;
+  $("publishButton").textContent = "Опубликовать";
 }
 
-if (post.link) {
-try {
-const url = new URL(post.link);
-if (["http:","https:"].includes(url.protocol)) {
-const a = element("a","Открыть ссылку ↗",content);
-a.href = url.href;
-a.target = "_blank";
-a.rel = "noopener noreferrer";
-}
-} catch(e) {}
-}
-
-const actions = document.createElement("div");
-actions.className = "actions";
-content.appendChild(actions);
-
-const edit = element("button","Редактировать",actions);
-edit.className = "edit";
-edit.onclick = () => editPost(index);
-
-const del = element("button","Удалить",actions);
-del.className = "delete";
-del.onclick = () => deletePost(index);
-
-container.appendChild(card);
-});
+function editPost(id) {
+  const post = posts.find(item => item.id === id);
+  if (!post) return;
+  $("title").value = post.title || "";
+  $("description").value = post.description || "";
+  $("youtube").value = post.youtube_url || "";
+  $("link").value = post.link_url || "";
+  $("image").value = "";
+  editingId = id;
+  $("publishButton").textContent = "Сохранить изменения";
+  window.scrollTo({top:0, behavior:"smooth"});
 }
 
-function editPost(index) {
-const post = posts[index];
-document.getElementById("title").value = post.title;
-document.getElementById("description").value = post.description;
-document.getElementById("youtube").value = post.youtube;
-document.getElementById("link").value = post.link;
-editing = index;
-window.scrollTo({top:0,behavior:"smooth"});
+async function uploadImage(file) {
+  if (!file) return null;
+  if (!file.type.startsWith("image/")) throw new Error("Выберите изображение.");
+  if (file.size > 8 * 1024 * 1024) throw new Error("Размер изображения должен быть до 8 МБ.");
+
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const path = currentUser.id + "/" + Date.now() + "-" + safeName;
+  const { error } = await db.storage.from(BUCKET).upload(path, file, {
+    cacheControl: "3600",
+    upsert: false,
+    contentType: file.type
+  });
+  if (error) throw error;
+
+  const { data } = db.storage.from(BUCKET).getPublicUrl(path);
+  return data.publicUrl;
 }
 
-function deletePost(index) {
-if (confirm("Удалить эту публикацию?")) {
-posts.splice(index,1);
-save();
-render();
-}
+async function publishPost() {
+  if (!isAdmin(currentUser)) {
+    status("editorStatus", "Нет прав администратора. Войдите заново.");
+    return;
+  }
+
+  const title = $("title").value.trim();
+  const description = $("description").value.trim();
+  const youtube = $("youtube").value.trim();
+  const link = $("link").value.trim();
+  const file = $("image").files[0];
+
+  if (!title && !description && !youtube && !file && !link) {
+    status("editorStatus", "Добавьте хотя бы один материал.");
+    return;
+  }
+
+  if (youtube && !youtubeId(youtube)) {
+    status("editorStatus", "Проверьте ссылку YouTube.");
+    return;
+  }
+  if (link) {
+    try {
+      const u = new URL(link);
+      if (!["http:","https:"].includes(u.protocol)) throw new Error();
+    } catch(e) {
+      status("editorStatus", "Дополнительная ссылка должна начинаться с https:// или http://.");
+      return;
+    }
+  }
+
+  $("publishButton").disabled = true;
+  status("editorStatus", "Сохраняю публикацию…");
+
+  try {
+    let imageUrl = null;
+    if (file) imageUrl = await uploadImage(file);
+
+    const record = {
+      title,
+      description,
+      youtube_url: youtube || null,
+      link_url: link || null
+    };
+
+    if (editingId) {
+      if (imageUrl) record.image_url = imageUrl;
+      const { error } = await db.from("posts").update(record).eq("id", editingId);
+      if (error) throw error;
+    } else {
+      record.image_url = imageUrl;
+      const { error } = await db.from("posts").insert(record);
+      if (error) throw error;
+    }
+
+    clearForm();
+    await loadPosts();
+    status("editorStatus", "Публикация сохранена.");
+  } catch(error) {
+    status("editorStatus", "Ошибка: " + (error.message || "не удалось сохранить."));
+  } finally {
+    $("publishButton").disabled = false;
+  }
 }
 
-render();
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+async function deletePost(id) {
+  if (!isAdmin(currentUser) || !confirm("Удалить эту публикацию?")) return;
+  const { error } = await db.from("posts").delete().eq("id", id);
+  if (error) {
+    status("editorStatus", "Ошибка удаления: " + error.message);
+    return;
+  }
+  await loadPosts();
+}
+
+async function login() {
+  if (!db) return;
+  $("loginButton").disabled = true;
+  status("loginStatus", "Выполняю вход…");
+  const { data, error } = await db.auth.signInWithPassword({
+    email: $("email").value.trim(),
+    password: $("password").value
+  });
+  $("loginButton").disabled = false;
+
+  if (error) {
+    status("loginStatus", "Ошибка входа: " + error.message);
+    return;
+  }
+  if (!isAdmin(data.user)) {
+    await db.auth.signOut();
+    currentUser = null;
+    updateAdminView();
+    status("loginStatus", "Этот аккаунт не назначен администратором.");
+    return;
+  }
+  currentUser = data.user;
+  updateAdminView();
+  await loadPosts();
+}
+
+async function logout() {
+  await db.auth.signOut();
+  currentUser = null;
+  updateAdminView();
+  clearForm();
+  render();
+  status("loginStatus", "Вы вышли из панели администратора.");
+}
+
+async function init() {
+  if (!configReady) {
+    status("loginStatus", "Сначала заполните SUPABASE_URL, SUPABASE_ANON_KEY и ADMIN_UID в начале скрипта. Остальная страница готова.");
+    $("loginButton").disabled = true;
+    return;
+  }
+
+  $("loginButton").onclick = login;
+  $("publishButton").onclick = publishPost;
+  $("logoutButton").onclick = logout;
+
+  const { data } = await db.auth.getSession();
+  currentUser = data.session?.user || null;
+  if (currentUser && !isAdmin(currentUser)) {
+    await db.auth.signOut();
+    currentUser = null;
+  }
+  updateAdminView();
+  await loadPosts();
+
+  db.auth.onAuthStateChange((_event, session) => {
+    currentUser = session?.user && isAdmin(session.user) ? session.user : null;
+    updateAdminView();
+    if (!currentUser) render();
+    else setTimeout(loadPosts, 0);
+  });
+}
+
+init();
 </script>
-const SUPABASE_URL = "https://nlpdipoukgxvwlsorlrh.supabase.co";
-
-const SUPABASE_KEY = "sb_publishable_XpzN7iuIAtUyXePqlo6Zvg_whRYcipy";
-  const supabase = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
 </body>
 </html>
