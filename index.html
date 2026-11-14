@@ -113,8 +113,13 @@ function isAdmin(user) {
 
 function updateAdminView() {
   const admin = isAdmin(currentUser);
+  const adminRoute = window.location.hash === "#admin";
+
+  // Панель публикации видна только вошедшему администратору.
   $("editor").classList.toggle("hidden", !admin);
-  $("loginBox").classList.toggle("hidden", admin);
+
+  // Форма входа показывается только при открытии адреса с #admin.
+  $("loginBox").classList.toggle("hidden", admin || !adminRoute);
 }
 
 async function loadPosts() {
@@ -365,6 +370,8 @@ async function init() {
     $("loginButton").disabled = true;
     return;
   }
+
+  window.addEventListener("hashchange", updateAdminView);
 
   $("loginButton").onclick = login;
   $("publishButton").onclick = publishPost;
